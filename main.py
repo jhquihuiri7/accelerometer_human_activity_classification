@@ -8,11 +8,27 @@ from google.api_core.exceptions import NotFound
 import pandas as pd
 from io import StringIO
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 button_style = "flex items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 # Initialize Google Cloud Storage client
 def gcs_client():
-    return storage.Client.from_service_account_json("cardiocareai1-firebase-adminsdk-fbsvc-928b95aeb5.json")
+    service_account_info = {
+        "type": os.getenv("GCP_TYPE"),
+        "project_id": os.getenv("GCP_PROJECT_ID"),
+        "private_key_id": os.getenv("GCP_PRIVATE_KEY_ID"),
+        "private_key": os.getenv("GCP_PRIVATE_KEY"),#.replace('\\n', '\n'),
+        "client_email": os.getenv("GCP_CLIENT_EMAIL"),
+        "client_id": os.getenv("GCP_CLIENT_ID"),
+        "auth_uri": os.getenv("GCP_AUTH_URI"),
+        "token_uri": os.getenv("GCP_TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.getenv("GCP_AUTH_PROVIDER_CERT_URL"),
+        "client_x509_cert_url": os.getenv("GCP_CLIENT_CERT_URL")
+    }
+    return storage.Client.from_service_account_info(service_account_info)
 
 external_scripts = [
         "https://cdn.tailwindcss.com"
