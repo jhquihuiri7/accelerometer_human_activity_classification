@@ -10,6 +10,12 @@ from io import StringIO
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from callbacks.update_file_dropdown import register_update_file_dropdown_callback
+from utils.label_data import label_activity
+from utils.get_intervals import get_activity_intervals
+from constants.dictionaries import activities_color
+
+
 
 load_dotenv()
 
@@ -29,6 +35,7 @@ def gcs_client():
         "client_x509_cert_url": os.getenv("GCP_CLIENT_CERT_URL")
     }
     return storage.Client.from_service_account_info(service_account_info)
+client = gcs_client()
 
 external_scripts = [
         "https://cdn.tailwindcss.com"
@@ -36,7 +43,7 @@ external_scripts = [
 
 # Initialize the Dash app
 app = dash.Dash(
-    __name__,
+    name="Accelerometer Data Visualization",
     external_scripts=external_scripts
     )
 server = app.server
@@ -79,50 +86,38 @@ app.layout = html.Div([
     ], className="flex items-start"),
     
     html.Div(id='status-message', style={'margin': '20px', 'textAlign': 'center'}),
-    
+    html.Div(
+        children=[
+            dcc.Dropdown(
+            id='activity-input',
+            options=[
+                {'label': 'Running', 'value': 'running'},
+                {'label': 'Sitting', 'value': 'sitting'},
+                {'label': 'Jogging', 'value': 'jogging'},
+                {'label': 'Walking', 'value': 'walking'},
+                {'label': 'Standing', 'value': 'standing'},
+                {'label': 'Lying down', 'value': 'lying down'},
+                {'label': 'Going upstairs', 'value': 'going upstairs'},
+                {'label': 'Going downstairs', 'value': 'going downstairs'}
+            ],
+            value='',
+            className="w-[200px] mx-10",
+            disabled=True
+            ),
+            html.Button('Add Activity', id='activity-button', n_clicks=0, disabled=True, className=button_style),
+        ], className="flex justify-end mb-5 w-full"
+    ),
     dcc.Loading(
         id="loading-graph",
         type="default",
         children=dcc.Graph(id='acceleration-plot', className="w-full")
-    )
+    ),
+
+    html.Div(id='output')
 ],className="p-10"
 )
 
-@app.callback(
-    [Output('file-selection-dropdown', 'options'),
-     Output('file-selection-dropdown', 'value'),
-     Output('plot-button', 'disabled'),
-     Output('status-message', 'children')],
-    [Input('load-files-button', 'n_clicks')],
-    [State('user-id-input', 'value')],
-    prevent_initial_call=True
-)
-def update_file_dropdown(n_clicks, user_id):
-    if not user_id:
-        return [], None, True, "Please select a User and click 'Load Files'"
-    
-    bucket_name = "cardiocareai1.firebasestorage.app"
-    folder_prefix = "acc"
-    
-    try:
-        client = gcs_client()
-        blobs = client.list_blobs(bucket_name, prefix=folder_prefix)
-        files_to_analyze = []
-        
-        for blob in blobs:
-            if user_id in blob.name:
-                list_name = blob.name.split("_")
-                date = list_name[1]
-                time = list_name[2]
-                files_to_analyze.append({'label': f"{date[:3]}-{date[3:5]}-{date[5:]} H {time[:2]}:{time[2:4]}:{time[4:]}", 'value': blob.name})
-        
-        if not files_to_analyze:
-            return [], None, True, f"No files found for user {user_id}"
-        
-        return files_to_analyze, files_to_analyze[0]['value'], False, f"Found {len(files_to_analyze)} files for user {user_id}"
-    
-    except Exception as e:
-        return [], None, True, f"Error loading files: {str(e)}"
+register_update_file_dropdown_callback(app, client)
 
 @app.callback(
     [Output('acceleration-plot', 'figure'),
@@ -159,16 +154,30 @@ def update_plot(n_clicks, selected_file, user_id):
 
         for i, column in enumerate(columns, start=1):
             fig.add_trace(
-                go.Scatter(x=df['t'], y=df[column], mode='lines', name=column),
+                go.Scatter(x=df['t'], y=df[column], mode='lines+markers', name=column),
                 row=i, col=1
             )
 
         fig.update_layout(
             height=800,
             title_text=f"Accelerometer Data from {selected_file}",
-            showlegend=False
+            showlegend=False,
+            dragmode='select'
         )
-
+        
+        for interval in get_activity_intervals(df):
+            fig.add_shape(
+                type="rect",
+                x0=interval["start"],  # Already datetime
+                x1=interval["end"],
+                xref="x",
+                y0=0,
+                y1=1,
+                yref="paper",
+                line=dict(width=0),
+                fillcolor=activities_color(interval["activity"]),
+                opacity=0.3
+            )
         # First subplot: only range selector (buttons)
         fig.update_xaxes(
             row=1, col=1,
@@ -201,6 +210,43 @@ def update_plot(n_clicks, selected_file, user_id):
     
     except Exception as e:
         return go.Figure(), f"Error loading data: {str(e)}"
+    
+
+@app.callback(
+    Output('output', 'children'),
+    Input('acceleration-plot', 'selectedData')
+)
+def mostrar_seleccion(selectedData):
+    if not selectedData:
+        return "Selecciona puntos con el mouse."
+    x_vals = [p['x'] for p in selectedData['points']]
+    return f"Valores X seleccionados: {x_vals}"
+
+@app.callback(
+    [Output('activity-button', 'disabled'),
+     Output('activity-input', 'disabled')],
+    [Input('acceleration-plot', 'selectedData')],
+    prevent_initial_call=True
+)
+def enable_activity_button(selectedData):
+    if selectedData is None:
+        return True, True  # Disable both button and dropdown when no selection
+    return False, False  # Enable both when there's a selection
+
+@app.callback(
+    [Output('activity-button', 'disabled',allow_duplicate=True),
+     Output('activity-input', 'disabled', allow_duplicate=True),
+     Output('activity-input', 'value')],
+    [Input('activity-button', 'n_clicks')],
+    [State('acceleration-plot', 'selectedData'),
+     State('activity-input', 'value')],
+    prevent_initial_call=True
+)
+def handle_activity_button_click(n_clicks, selectedData, activity):
+    if n_clicks > 0:
+        label_activity(client=client, selected_timestamps=selectedData, activity=activity)
+        return True, True, ''
+    return dash.no_update, dash.no_update, dash.no_update
 
 if __name__ == '__main__':
     app.run(debug=True)
