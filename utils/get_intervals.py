@@ -4,6 +4,9 @@ def get_activity_intervals(df):
     start_time = None
     
     for index, row in df.iterrows():
+        if row['activity'] == None:
+            continue
+        
         if current_activity is None or row['activity'] != current_activity:
             if current_activity is not None and current_activity != 'unknown':
                 intervals.append({

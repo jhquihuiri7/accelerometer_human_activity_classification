@@ -1,0 +1,37 @@
+TYPE: "service_account"
+PROJECT_ID: "cardiocareai1"
+PRIVATE_KEY_ID: "928b95aeb5d8afa77964c49dca666027085995a5"
+PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----
+  MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC2ElTgs4D+4C/F
+  gCto32ZJKerVISFp5jvpBs4uK7AQlBC4Nxe525OPm0raqoikqKwSgCPCZohblVLn
+  n6j6QAsAG3XgwnLGUDPICj3WNpAN+OjJPUX6jdqG7wff72TeGFl1PHTj3U5UvVfM
+  QOFu9vsofwhEFw6OzRdWpaLyPXj394+X/HcNezaUh48dqX4EbtZD8xq2qebhzR0b
+  F3pm+84TfpGfSYpEAVFgLRFQ8QXhJfn7psAgzc+cE5y8+SsOviUHD5hPmAUVW3RK
+  O06Qb/kFQGSsn5j/9CqGTt1D02JgaTJPB2zZpPr0Orh4egKWQoYoc1F+xaFv0YwO
+  O/3kcYxtAgMBAAECggEAAfaYu0B1uAncAUkN7sbiRpwlPPe8n+jvaxT7ehUobOj5
+  o4rh/nnVnS+U0DAsSx4+UMIHDzsUFLKNAeWQ4vAa2eXaoiLa/1dCgpcyC2makfbo
+  vA4N881JgkUQNInTcHrr6u8edHZgrLeFDPsDZL6x282cr0BeCGj8AwghNC3y4Kn5
+  h5hu1A3dOSNsiROWlPo6p2daLzudpfDOQXq5tTdT0y8xO5usDfJrsfN3sZzrECgI
+  J3l02Ade3K11oG8zPexhPb98maUvsT/dHtKvTd7IYBhp8QZySrX5P8hRWQ2ocst7
+  c614M3sPArE1F7m1vzIggvO/u4krXeX33cLX4/2qDwKBgQD0kxLEHEHB+s9jmLxy
+  hxVTOyJsPtyTlbjKJ+8+R4FSaliZJVYf36mCohW7utVXKfJZhfQ90FO5cWB3rU5v
+  BJXXBmskt09uy8PRVWZqwbDrKxrjbdgdzTy+qeI10mGrK9U06PZ7x63Z3JtBhId/
+  XrcaPTM8aHhKGl75Yb/NceRrHwKBgQC+k8VNqdK4nxVfH8dYgt5QRTo24EUkwnzx
+  6Pitse64M+LiZtGRbFJWt60fz7+nrIvr2zAUiiE1ay4ixyWKnOBnLrK3hP8kCQp8
+  bHaXXje+pPzWIlVSThHJLlYD5eyJUJAUjuGlMgvUmSZAp79UReZBnx1z8cyT69w0
+  4a1msqJi8wKBgBfCvhz9XcoZstJLQWujAghfA14e0VEpR5WkQZL8YWz/VfIy9WYN
+  VauSUag2Y4mfUqMt52el+KxYfnXCCY+xk1kbj4c2o+nws+p/cH7IqIaAXpFf15I1
+  oUQovwhZkxGNJZ6JT4EBCjvTOeYomP1f10weS/7/a0hPvZBe1cKA4R8jAoGATv/0
+  lxghuNSBSHhk62T8gSvhUOQw5WcV4jXf+Ci9O3COyakzkGPl0fq78mbtHLWjHvcy
+  fCEyWPGAI3yILGiRgVRTU033cdmpliBkHKU62HWONbnvwnmIV+w0TdNe9SEHSO5d
+  zVvsmYmO2NhwsJ91Lpil3e1LD7qDAwzWE69TL08CgYEArI6gT3bCVGtUAiXIwQnz
+  ns+hrlpBGEq5rfC+AzWRPyXf+o1b0DrtnacIZW5olrJVGo9reHEsF2uk1b3jkWCY
+  zkgXiylM9+9bEwDSnfJv5atkl3+gm3ef7gif6d4hQ8e1hybAPceT9qrBou3C5wxj
+  TXNRFb4l17D+ekkR5JInDiw=
+  -----END PRIVATE KEY-----"
+CLIENT_EMAIL: "firebase-adminsdk-fbsvc@cardiocareai1.iam.gserviceaccount.com"
+CLIENT_ID: "107464977131147227316"
+AUTH_URI: "https://accounts.google.com/o/oauth2/auth"
+TOKEN_URI: "https://oauth2.googleapis.com/token"
+AUTH_PROVIDER_CERT_URL: "https://www.googleapis.com/oauth2/v1/certs"
+CLIENT_CERT_URL: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40cardiocareai1.iam.gserviceaccount.com"

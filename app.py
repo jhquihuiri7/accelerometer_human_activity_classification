@@ -14,27 +14,30 @@ from callbacks.update_file_dropdown import register_update_file_dropdown_callbac
 from utils.label_data import label_activity
 from utils.get_intervals import get_activity_intervals
 from constants.dictionaries import activities_color
+import yaml
 
 
-
-load_dotenv()
+with open('config.yaml', 'r') as f:
+    config = yaml.safe_load(f)
 
 button_style = "flex items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 # Initialize Google Cloud Storage client
 def gcs_client():
     service_account_info = {
-        "type": os.getenv("GCP_TYPE"),
-        "project_id": os.getenv("GCP_PROJECT_ID"),
-        "private_key_id": os.getenv("GCP_PRIVATE_KEY_ID"),
-        "private_key": os.getenv("GCP_PRIVATE_KEY"),#.replace('\\n', '\n'),
-        "client_email": os.getenv("GCP_CLIENT_EMAIL"),
-        "client_id": os.getenv("GCP_CLIENT_ID"),
-        "auth_uri": os.getenv("GCP_AUTH_URI"),
-        "token_uri": os.getenv("GCP_TOKEN_URI"),
-        "auth_provider_x509_cert_url": os.getenv("GCP_AUTH_PROVIDER_CERT_URL"),
-        "client_x509_cert_url": os.getenv("GCP_CLIENT_CERT_URL")
+        "type": config['TYPE'],
+        "project_id": config['PROJECT_ID'],
+        "private_key_id": config['PRIVATE_KEY_ID'],
+        "private_key": config['PRIVATE_KEY'],
+        "client_email": config['CLIENT_EMAIL'],
+        "client_id": config['CLIENT_ID'],
+        "auth_uri": config['AUTH_URI'],
+        "token_uri": config['TOKEN_URI'],
+        "auth_provider_x509_cert_url": config['AUTH_PROVIDER_CERT_URL'],
+        "client_x509_cert_url": config['CLIENT_CERT_URL']
     }
-    return storage.Client.from_service_account_info(service_account_info)
+    #return storage.Client.from_service_account_info(service_account_info)
+    #return storage.Client.from_service_account_json("./cardiocareai1-firebase-adminsdk-fbsvc-928b95aeb5.json")
+    return storage.Client()
 client = gcs_client()
 
 external_scripts = [
@@ -44,6 +47,7 @@ external_scripts = [
 # Initialize the Dash app
 app = dash.Dash(
     name="Accelerometer Data Visualization",
+    title="Accelerometer Data Visualization",
     external_scripts=external_scripts
     )
 server = app.server
@@ -154,7 +158,7 @@ def update_plot(n_clicks, selected_file, user_id):
 
         for i, column in enumerate(columns, start=1):
             fig.add_trace(
-                go.Scatter(x=df['t'], y=df[column], mode='lines+markers', name=column),
+                go.Scattergl(x=df['t'], y=df[column], mode='lines+markers', name=column),
                 row=i, col=1
             )
 
@@ -164,7 +168,6 @@ def update_plot(n_clicks, selected_file, user_id):
             showlegend=False,
             dragmode='select'
         )
-        
         for interval in get_activity_intervals(df):
             fig.add_shape(
                 type="rect",
@@ -178,6 +181,7 @@ def update_plot(n_clicks, selected_file, user_id):
                 fillcolor=activities_color(interval["activity"]),
                 opacity=0.3
             )
+        
         # First subplot: only range selector (buttons)
         fig.update_xaxes(
             row=1, col=1,
@@ -249,4 +253,4 @@ def handle_activity_button_click(n_clicks, selectedData, activity):
     return dash.no_update, dash.no_update, dash.no_update
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
